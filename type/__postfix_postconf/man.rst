@@ -1,11 +1,8 @@
 cdist-type__postfix_postconf(7)
 ===============================
+Configure postfix main.cf
+
 Steven Armstrong <steven-cdist--@--armstrong.cc>
-
-
-NAME
-----
-cdist-type__postfix_postconf - configure postfix main.cf
 
 
 DESCRIPTION
@@ -18,30 +15,29 @@ It does not make changes to /etc/postfix/main.cf itself.
 
 REQUIRED PARAMETERS
 -------------------
-value::
+value
    the value for the postfix parameter
 
 
 OPTIONAL PARAMETERS
 -------------------
-key::
+key
    the name of the parameter. Defaults to __object_id
 
 
 EXAMPLES
 --------
 
---------------------------------------------------------------------------------
-__postfix_postconf mydomain --value somedomain.com
+.. code-block:: sh
 
-__postfix_postconf bind-to-special-ip --key smtp_bind_address --value 127.0.0.5
+    __postfix_postconf mydomain --value somedomain.com
 
---------------------------------------------------------------------------------
+    __postfix_postconf bind-to-special-ip --key smtp_bind_address --value 127.0.0.5
 
 
 SEE ALSO
 --------
-- cdist-type(7)
+- `cdist-type(7) <cdist-type.html>`_
 - postconf(5)
 
 
