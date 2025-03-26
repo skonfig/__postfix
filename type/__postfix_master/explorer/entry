@@ -17,16 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this set. If not, see <http://www.gnu.org/licenses/>.
 #
+# Prints the section of /etc/postfix/master.cf managed by this object.
+#
 
-config="/etc/postfix/master.cf"
+config=/etc/postfix/master.cf
 
 # no master.cf, nothing we could do
-[ -f "$config" ] || exit 0
+test -f "${config}" || exit 0
 
 # NOTE: keep variables in sync in manifest,explorer,gencode-*
-prefix="#cdist:$__object_name"
-suffix="#/cdist:$__object_name"
-awk -v prefix="$prefix" -v suffix="$suffix" '{
+prefix="#cdist:${__object_name:?}"
+suffix="#/cdist:${__object_name:?}"
+awk -v prefix="${prefix}" -v suffix="${suffix}" '{
    if (index($0,prefix)) {
       triggered=1
    }
@@ -36,4 +38,4 @@ awk -v prefix="$prefix" -v suffix="$suffix" '{
       }
       print
    }
-}' "$config"
+}' "${config}"

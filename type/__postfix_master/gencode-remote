@@ -18,19 +18,21 @@
 # along with this set. If not, see <http://www.gnu.org/licenses/>.
 #
 
-config="/etc/postfix/master.cf"
-entry="$__object/files/entry"
-state_should="$(cat "$__object/parameter/state")"
-if [ ! -s "$__object/explorer/entry" ]; then
+config=/etc/postfix/master.cf
+entry="${__object:?}/files/entry"
+state_should=$(cat "${__object:?}/parameter/state")
+
+if test ! -s "${__object:?}/explorer/entry"
+then
    state_is='absent'
 else
-   state_is=$(diff -q "$entry" "$__object/explorer/entry" >/dev/null \
+   state_is=$(diff -q "${entry}" "${__object:?}/explorer/entry" >/dev/null \
       && echo present \
-      || echo changed
-   )
+      || echo changed)
 fi
 
-if [ "$state_should" = "$state_is" ]; then
+if test "${state_should}" = "${state_is}"
+then
    # Nothing to do, move along
    exit 0
 fi
@@ -38,13 +40,13 @@ fi
 
 remove_entry() {
    # NOTE: keep variables in sync in manifest/explorer/gencode-*
-   prefix="#cdist:$__object_name"
-   suffix="#/cdist:$__object_name"
-   cat << DONE
+   prefix="#cdist:${__object_name:?}"
+   suffix="#/cdist:${__object_name:?}"
+   cat <<DONE
 tmpfile=\$(mktemp ${config}.cdist.XXXXXXXXXX)
 # preserve ownership and permissions of existing file
-cp -p "$config" "\$tmpfile"
-awk -v prefix="$prefix" -v suffix="$suffix" '
+cp -p "${config}" "\${tmpfile}"
+awk -v prefix="${prefix}" -v suffix="${suffix}" '
 {
    if (index(\$0,prefix)) {
       triggered=1
@@ -56,23 +58,25 @@ awk -v prefix="$prefix" -v suffix="$suffix" '
    } else {
       print
    }
-}' "$config" > "\$tmpfile"
-mv -f "\$tmpfile" "$config"
+}' "${config}" >"\${tmpfile}"
+mv -f "\${tmpfile}" "${config}"
 DONE
 }
 
-case "$state_should" in
-   present)
-      if [ "$state_is" = "changed" ]; then
+case ${state_should}
+in
+   (present)
+      if test "${state_is}" = 'changed'
+      then
          remove_entry
       fi
-      cat << DONE
-cat >> "$config" << "${__type##*/}_DONE"
-$(cat "$entry")
-${__type##*/}_DONE
-DONE
-   ;;
-   absent)
+      cat <<EOF
+cat >>"${config}" <<'CONFIG_EOF'
+$(cat "${entry}")
+CONFIG_EOF
+EOF
+      ;;
+   (absent)
       remove_entry
-   ;;
+      ;;
 esac

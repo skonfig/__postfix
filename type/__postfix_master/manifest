@@ -19,62 +19,74 @@
 #
 
 
-os=$(cat "$__global/explorer/os")
+os=$(cat "${__global:?}/explorer/os")
 
-case "$os" in
-   ubuntu|debian|archlinux|scientific|centos|devuan)
-      :
-   ;;
-   *)
-      echo "Your operating system ($os) is currently not supported by this type (${__type##*/})." >&2
+case ${os}
+in
+   (debian|devuan|ubuntu|archlinux|scientific|centos)
+      ;;
+   (*)
+      : "${__type:?}"  # make shellcheck happy
+      echo "Your operating system (${os}) is currently not supported by this type (${__type##*/})." >&2
       echo "Please contribute an implementation for it if you can." >&2
       exit 1
-   ;;
+      ;;
 esac
 
 __postfix
 
-# Default to object_id
-service="$(cat "$__object/parameter/service" 2>/dev/null || echo "$__object_id")"
+if test -f "${__object:?}/parameter/service"
+then
+	service=$(cat "${__object:?}/parameter/service")
+else
+	# default to object_id
+	service=${__object_id:?}
+fi
 
 # NOTE: keep variables in sync in manifest,explorer,gencode-*
-prefix="#cdist:$__object_name"
-suffix="#/cdist:$__object_name"
+prefix="#cdist:${__object_name:?}"
+suffix="#/cdist:${__object_name:?}"
 
 # Generate entry for inclusion in master.cf
-mkdir "$__object/files"
-entry="$__object/files/entry"
+mkdir "${__object:?}/files"
+entry="${__object:?}/files/entry"
 (
-   echo "$prefix"
-   if [ -f "$__object/parameter/comment" ]; then
-      echo "# $(cat "$__object/parameter/comment")"
+   echo "${prefix}"
+   if test -f "${__object:?}/parameter/comment"
+   then
+      echo "# $(cat "${__object:?}/parameter/comment")"
    fi
-   printf "%s " "$service"
-   for parameter in type private unpriv chroot wakeup maxproc; do
-      printf "%s " "$(cat "$__object/parameter/$parameter")"
+   printf "%s " "${service}"
+   for parameter in type private unpriv chroot wakeup maxproc
+   do
+      printf "%s " "$(cat "${__object:?}/parameter/${parameter}")"
    done
-   command="$(cat "$__object/parameter/command")"
+   command=$(cat "${__object:?}/parameter/command")
    # ensure we have a trailing newline
-   echo "$command"
-   options="$(cat "$__object/parameter/option" 2>/dev/null || true)"
-   for option in $options; do
-      echo " -o $option"
+   echo "${command}"
+   options=$(cat "${__object:?}/parameter/option" 2>/dev/null || :)
+   for option in ${options}
+   do
+      echo " -o ${option}"
    done
-   echo "$suffix"
-) > "$entry"
+   echo "${suffix}"
+) >"${entry}"
 
 # Reload postfix after changes
-if [ ! -f "$__object/parameter/noreload" ]; then
-   state_should="$(cat "$__object/parameter/state")"
-   if [ ! -s "$__object/explorer/entry" ]; then
+if test ! -f "${__object:?}/parameter/noreload"
+then
+   state_should=$(cat "${__object:?}/parameter/state")
+   if test ! -s "${__object:?}/explorer/entry"
+   then
       state_is='absent'
    else
-      state_is=$(diff -q "$entry" "$__object/explorer/entry" >/dev/null \
+      state_is=$(diff -q "${entry}" "${__object:?}/explorer/entry" >/dev/null \
          && echo present \
-         || echo changed
-      )
+         || echo changed)
    fi
-   if [ "$state_is" != "$state_should" ]; then
-      require="$__object_name" __postfix_reload
+   if test "${state_is}" != "${state_should}"
+   then
+      require=${__object_name:?} \
+      __postfix_reload
    fi
 fi

@@ -18,4 +18,4 @@
 # along with this set. If not, see <http://www.gnu.org/licenses/>.
 #
 
-echo "postmap /$__object_id"
+echo "postmap /${__object_id:?}"
