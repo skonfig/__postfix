@@ -63,7 +63,7 @@ EXAMPLES
        --option smtpd_client_restrictions=permit_sasl_authenticated,reject
 
     __postfix_master submission --type inet --command smtpd \
-       --comment "Run alternative smtp on submission port"
+       --comment 'Run alternative smtp on submission port'
 
 
 SEE ALSO
