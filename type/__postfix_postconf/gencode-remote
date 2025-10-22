@@ -41,19 +41,22 @@ in
 esac
 
 state_should=$(cat "${__object:?}/parameter/state")
-if test ! -s "${__object:?}/explorer/value"
+if test -s "${__object:?}/explorer/value"
 then
-   state_is='absent'
+	if cmp -s "${__object:?}/parameter/value" "${__object:?}/explorer/value"
+	then
+		state_is=present
+	else
+		state_is=different
+	fi
 else
-   state_is=$(diff -q "${__object:?}/parameter/value" "${__object:?}/explorer/value" >/dev/null \
-      && echo present \
-      || echo changed)
+	state_is=absent
 fi
 
 if test "${state_should}" = "${state_is}"
 then
-   # Nothing to do, move along
-   exit 0
+	# nothing to do, move along
+	exit 0
 fi
 
 if test -f "${__object:?}/parameter/key"
