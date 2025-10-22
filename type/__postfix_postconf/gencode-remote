@@ -68,10 +68,14 @@ case ${state_should}
 in
 	(present)
 		printf 'postconf -e %s=%s\n' "$(shquot "${key}")" "$(shquot "${value}")"
+
+		printf 'set %s=%s\n' "${key}" "${value}" >>"${__messages_out:?}"
 		;;
 	(absent)
 		# revert parameter to its default value
 		printf 'postconf -# %s\n' "$(shquot "${key}")"
+
+		printf 'removed %s\n' "${key}" >>"${__messages_out:?}"
 		;;
 	(*)
 		printf 'Invalid --state: %s\n' "${state_should}" >&2
