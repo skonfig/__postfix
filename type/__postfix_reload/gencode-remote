@@ -1,6 +1,7 @@
 #!/bin/sh -e
 #
 # 2012-2014 Steven Armstrong (steven-cdist at armstrong.cc)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of the skonfig set __postfix.
 #
@@ -18,18 +19,4 @@
 # along with this set. If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-os=$(cat "${__global:?}/explorer/os")
-
-case ${os}
-in
-   (ubuntu|debian|archlinux|scientific|centos|devuan)
-      echo 'postfix reload'
-      ;;
-   (*)
-      : "${__type:?}"  # make shellcheck happy
-      echo "Your operating system (${os}) is currently not supported by this type (${__type##*/})." >&2
-      echo 'Please contribute an implementation for it if you can.' >&2
-      exit 1
-      ;;
-esac
+echo 'postfix reload'

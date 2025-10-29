@@ -27,7 +27,7 @@ in
 	(netbsd)
 		# Postfix is the default MTA already
 		;;
-	(*)
+	(alpine|archlinux|centos|scientific|debian|devuan|ubuntu|suse)
 		__package postfix
 		;;
 esac
